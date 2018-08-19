@@ -28,6 +28,9 @@ var errorHandler = require('errorhandler');
 var multipart = require('connect-multiparty')
 const csv=require('csvtojson')
 
+require("./services/cronjob");
+const {schedule_meetings} = require("./schedule_meeting");
+
 var multipartMiddleware = multipart();
 
 // all environments
@@ -117,6 +120,39 @@ function createResponseData(id, name, value, attachments) {
     return responseData;
 }
 
+app.post('/notification/inbound', function (request, response) {
+    console.log(request.body);
+    response.send("OKAAAAY");
+
+});
+
+app.post('/notification/outbound', function (request, response) {
+    console.log(request.body);
+    response.sendStatus(200);
+
+});
+
+app.post('/notification/fallback', function (request, response) {
+console.log(request.body);
+response.sendStatus(200);
+});
+
+app.post('/notification/monthly-inbound', function (request, response) {
+    console.log(request.body);
+    response.send("OKAAAAY");
+
+});
+app.post('/notification/monthly-outbound', function (request, response) {
+    console.log(request.body);
+    response.sendStatus(200);
+
+});
+
+app.post('/notification/monthly-fallback', function (request, response) {
+console.log(request.body);
+response.sendStatus(200);
+});
+
 function sanitizeInput(str) {
     return String(str).replace(/&(?!amp;|lt;|gt;)/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
@@ -201,7 +237,7 @@ app.post('/api/favorites/attach', multipartMiddleware, function (request, respon
                                 .fromString(data.toString())
                                 .then((parsedData) => {
                                     console.log("this is parsed data",parsedData[0],typeof parsedData[0],parsedData[0].Advisor,typeof parsedData[0].Advisor,parsedData[0]["Advisor Phone"],typeof parsedData[0]["Advisor Phone"]) // => [["1","2","3"], ["4","5","6"], ["7","8","9"]]
-
+                                    schedule_meetings(parsedData, db);
                                     db.attachment.insert(id, file.name, data, file.type, {
                                         rev: rev
                                     }, function (err, document) {
