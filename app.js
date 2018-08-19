@@ -27,6 +27,9 @@ var logger = require('morgan');
 var errorHandler = require('errorhandler');
 var multipart = require('connect-multiparty')
 const csv=require('csvtojson')
+const accountSid = 'AC68694c8a914917919a17bb57c4ea0a1e';
+const authToken = 'b01a778f2018f15c2ca14a276341bb7b';
+const client = require('twilio')(accountSid, authToken);
 
 var multipartMiddleware = multipart();
 
@@ -93,8 +96,25 @@ function initDBConnection() {
 
 initDBConnection();
 
+var request = {"body":"Testing from the other side!", "to":"+15303006909"};
+var options = {uri:"http://localhost:3000/messaging", body:request, json:true};
 app.get('/', routes.index);
+app.post('/messaging', function(req, res) {
+    console.log(req.body);
+    client.messages
+          .create({from: '+19167028035', body: req.body.body, to: req.body.to})
+          .then(message => console.log(message.sid))
+          .done();
+});
 
+var rp = require('request-promise');
+rp.post(options)
+.then(function (body) {
+    console.log("POST succeeded...");
+})
+.catch(function (err) {
+    console.log("POST failed...");
+});
 function createResponseData(id, name, value, attachments) {
 
     var responseData = {
