@@ -36,7 +36,7 @@ function schedule_meetings(array, db) {
             },
             headers: {
                 'Accept': 'application/json',
-                'Authorization': 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJQV2xIakpVcFJEU2p4LTJJV1lILWFBIiwiaWF0IjoxNTM0Njg0NTk4LCJleHAiOjE1MzQ4MTg2NDd9.vmrQyzaYIkTPay7O-YNvMNeBBjZs5TntSMEYhrwOCTY"//process.env.ACCESS_TOKEN
+                'Authorization': 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJQV2xIakpVcFJEU2p4LTJJV1lILWFBIiwiaWF0IjoxNTM0Njg0NTk4LCJleHAiOjE1MzQ5MTg2NDd9.sHxB_wE9qlUI_h67hIIK_O7FcebFTx59jPYhk7Kn7So"//process.env.ACCESS_TOKEN
             },
             json: true
         };

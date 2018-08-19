@@ -30,33 +30,108 @@ var errorHandler = require('errorhandler');
 var multipart = require('connect-multiparty')
 const csv=require('csvtojson')
 var CronJob = require('cron').CronJob;
+var _ = require('lodash');
+var request = require('request')
 
-var cronjob = new CronJob('* * * * * *', function() {
-    console.log('You will see this message every 2 minutes', Date.now());
+
+const accountSid = 'AC68694c8a914917919a17bb57c4ea0a1e';
+const authToken = 'b01a778f2018f15c2ca14a276341bb7b';
+const client = require('twilio')(accountSid, authToken);
+
+var cronjob = new CronJob('* */2 * * * *', function() {
+    console.log('You will see this message every 2 minutes', new Date(Date.now() + 120000).toISOString());
     //console.log("date in 2 minutes",Date.now(),  Date.now() + new Date(0,0,0,0,2,0))
-    if(db.list)
-    db.list({
-      "selector": {
-         "time_stamp": {
-            "$gt": Date.now() + new Date(0,0,0,0,2,0)
-         }
-      },
-      "fields": [
-         "_id",
-         "_rev",
-         "time_stamp"
-      ],
-      "sort": [
-         {
-            "time_stamp": "asc"
-         }
-      ]
-   }, (err, res)=>{
-    console.log("db list", err, res)
+    if(db.find)
+    db.find({
+        "selector": {
+           "time_stamp": {
+              "$gt": new Date(Date.now() + 120000).toISOString()
+           }
+        },
+        "sort": [
+           {
+              "time_stamp": "asc"
+           }
+        ]}, (err, res)=>{
+     _.forEach(res.docs, (elm)=>{
+        //console.log("ELM", elm.time_stamp >  new Date(Date.now() + 120000).toISOString())
+       // var val = elm.time_stamp < new Date(Date.now() + 120000).toISOString();
+        //if(val)
+       // {
+            client.messages
+            .create({from: '+19167028035', body: "You have a meeting scheduled with PVC. Mentor:" + elm.Advisor + " Client: " + elm.SBO + ". Dial: +1-408-638-0986 And enter meeting id: " + elm.meeting_id, to: "+15303006909"})
+            .then(message => console.log(message.sid))
+            .done();
+
+            // client.messages
+            // .create({from: '+19167028035', body: "You have a meeting scheduled with PVC. Mentor:" + elm.Advisor + " Client: " + elm.SBO + ". Dial: +1-408-638-0986 And enter meeting id: " + elm.meeting_id, to: "+15303006909"})
+            // .then(message => console.log(message.sid))
+            // .done();
+       // }
+    });
+    //console.log('filtered', filtered)
+
    });
   }, null, true, 'America/Los_Angeles');
   
   cronjob.start();
+
+
+
+
+//   var cronjob2 = new CronJob('* */2 * * * *', function() {
+//     console.log('You will see this message every 2 minutes', new Date(Date.now() + 120000).toISOString());
+//     //console.log("date in 2 minutes",Date.now(),  Date.now() + new Date(0,0,0,0,2,0))
+//     if(db.find)
+//     db.find({
+//         "selector": {
+//            "time_stamp": {
+//               "$lt": new Date(Date.now() + 120000).toISOString()
+//            }
+//         },
+//         "sort": [
+//            {
+//               "time_stamp": "asc"
+//            }
+//         ]}, (err, res)=>{
+//      _.forEach(res.docs, (elm)=>{
+//         //console.log("ELM", elm.time_stamp >  new Date(Date.now() + 120000).toISOString())
+//        // var val = elm.time_stamp < new Date(Date.now() + 120000).toISOString();
+//         //if(val)
+//        // {
+//             client.messages
+//             .create({from: '+19167028035', body: "You have a meeting scheduled with PVC. Mentor:" + elm.Advisor + " Client: " + elm.SBO + ". Dial: +1-408-638-0986 And enter meeting id: " + elm.meeting_id, to: "+15303006909"})
+//             .then(message => console.log(message.sid))
+//             .done();
+
+//             // client.messages
+//             // .create({from: '+19167028035', body: "You have a meeting scheduled with PVC. Mentor:" + elm.Advisor + " Client: " + elm.SBO + ". Dial: +1-408-638-0986 And enter meeting id: " + elm.meeting_id, to: "+15303006909"})
+//             // .then(message => console.log(message.sid))
+//             // .done();
+//        // }
+//     });
+//     //console.log('filtered', filtered)
+
+//    });
+//   }, null, true, 'America/Los_Angeles');
+  
+//   cronjob2.start();
+
+
+
+//   var options = { method: 'GET',
+//   url: 'https://api.zoom.us/v2/past_meetings/679660202/participants',
+//   headers: 
+//    { 'Postman-Token': '92dfe128-6b6f-47f1-9f48-8f2a1f5bc32a',
+//      'Cache-Control': 'no-cache',
+//      Authorization: 'Bearer  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJQV2xIakpVcFJEU2p4LTJJV1lILWFBIiwiaWF0IjoxNTM0Njg0NTk4LCJleHAiOjE1MzQ5MTg2NDd9.sHxB_wE9qlUI_h67hIIK_O7FcebFTx59jPYhk7Kn7So' } };
+
+// request(options, function (error, response, body) {
+//   if (error) throw new Error(error);
+
+//   console.log(body);
+// });
+
 
 const {startUpcomingNotificationCron} = require("./services/cronjob");
 
@@ -155,6 +230,16 @@ function createResponseData(id, name, value, attachments) {
     });
     return responseData;
 }
+
+// function sendmessage(req, res) {
+//     console.log(req.body);
+//     client.messages
+//           .create({from: '+19167028035', body: req.body.body, to: req.body.to})
+//           .then(message => console.log(message.sid))
+//           .done();
+// }
+
+// app.post('/messaging', sendmessage());
 
 app.post('/notification/inbound', function (request, response) {
     console.log(request.body);

@@ -16,7 +16,8 @@
     "express": "4.15.x",
     "method-override": "2.3.x",
     "morgan": "1.8.x",
-    "node-env-file": "^0.1.8"
+    "node-env-file": "^0.1.8",
+    "twilio": "^3.19.1"
   },
   "repository": {},
   "engines": {

@@ -4,11 +4,11 @@ module.exports={
   startUpcomingNotificationCron:function startUpcomingNotificationCron(db){
   console.log("heeeeloooo")
   var cronjob = new CronJob('* * * * *', function() {
-    console.log('You will see this message every 2 minutes', Date.now());
+    console.log('You will see this message every 2 minutes', new Date().toISOString());
     db.list({
       "selector": {
          "time_stamp": {
-            "$gt": "2018-08-17T19:00:00.000Z"
+            "$gt": new Date().toISOString()
          }
       },
       "fields": [
