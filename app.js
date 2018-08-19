@@ -13,6 +13,8 @@ var app = express();
 
 var db;
 
+
+
 var cloudant;
 
 var fileToUpload;
@@ -27,8 +29,37 @@ var logger = require('morgan');
 var errorHandler = require('errorhandler');
 var multipart = require('connect-multiparty')
 const csv=require('csvtojson')
+var CronJob = require('cron').CronJob;
 
-require("./services/cronjob");
+var cronjob = new CronJob('* * * * * *', function() {
+    console.log('You will see this message every 2 minutes', Date.now());
+    //console.log("date in 2 minutes",Date.now(),  Date.now() + new Date(0,0,0,0,2,0))
+    if(db.list)
+    db.list({
+      "selector": {
+         "time_stamp": {
+            "$gt": Date.now() + new Date(0,0,0,0,2,0)
+         }
+      },
+      "fields": [
+         "_id",
+         "_rev",
+         "time_stamp"
+      ],
+      "sort": [
+         {
+            "time_stamp": "asc"
+         }
+      ]
+   }, (err, res)=>{
+    console.log("db list", err, res)
+   });
+  }, null, true, 'America/Los_Angeles');
+  
+  cronjob.start();
+
+const {startUpcomingNotificationCron} = require("./services/cronjob");
+
 const {schedule_meetings} = require("./schedule_meeting");
 
 var multipartMiddleware = multipart();
@@ -89,9 +120,14 @@ function initDBConnection() {
         if (err) {
             console.log('Could not create new db: ' + dbCredentials.dbName + ', it might already exist.');
         }
+        else 
+        {
+            //startUpcomingNotificationCron(db);
+        }
     });
 
     db = cloudant.use(dbCredentials.dbName);
+    
 }
 
 initDBConnection();
